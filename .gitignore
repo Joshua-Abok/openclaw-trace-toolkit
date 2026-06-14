@@ -1,3 +1,4 @@
 __pycache__/
 *.redacted.jsonl
 tests/__pycache__/
+session.jsonl
