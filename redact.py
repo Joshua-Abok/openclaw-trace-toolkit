@@ -24,6 +24,8 @@ PATTERNS = [
     ("AWS_KEY", re.compile(r"\bAKIA[0-9A-Z]{16}\b")),
     ("GITHUB_TOKEN", re.compile(r"\bgh[pousr]_[A-Za-z0-9]{20,255}\b")),
     ("OPENAI_KEY", re.compile(r"\bsk-[A-Za-z0-9_-]{20,}\b")),
+    ("HF_TOKEN", re.compile(r"\bhf_[A-Za-z0-9]{20,}\b")),
+    ("NVIDIA_KEY", re.compile(r"\bnvapi-[A-Za-z0-9_-]{20,}\b")),
     ("SLACK_TOKEN", re.compile(r"\bxox[baprs]-[A-Za-z0-9-]{10,}\b")),
     ("JWT", re.compile(r"\beyJ[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\b")),
     ("BEARER", re.compile(r"(?i)\bbearer\s+[A-Za-z0-9._~+/=-]{16,}")),
