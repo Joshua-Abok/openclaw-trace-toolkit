@@ -111,6 +111,22 @@ def normalize(obj):
             "closed_call": closed, "timestamp": ts}
 
 
+def _ts_seconds(ts):
+    """Best-effort convert a timestamp (ISO-8601 string or epoch int/ms) to float seconds."""
+    if isinstance(ts, bool):
+        return None
+    if isinstance(ts, (int, float)):
+        return float(ts) / (1000.0 if ts > 1e11 else 1.0)
+    if isinstance(ts, str):
+        s = ts.strip().replace("Z", "+00:00")
+        try:
+            from datetime import datetime
+            return datetime.fromisoformat(s).timestamp()
+        except Exception:
+            return None
+    return None
+
+
 def lint_lines(lines, min_turns=0):
     errors = []
     warnings = []
@@ -156,8 +172,14 @@ def lint_lines(lines, min_turns=0):
             open_tool_calls.discard(rec["closed_call"])
 
         ts = rec["timestamp"]
-        if ts is not None and prev_ts is not None and ts < prev_ts:
-            errors.append(f"line {i}: timestamp goes backwards ({ts} < {prev_ts})")
+        if ts is not None and prev_ts is not None:
+            a, b = _ts_seconds(ts), _ts_seconds(prev_ts)
+            # Tolerate sub-second backwards jitter from async/concurrent tool
+            # logging; only flag a meaningful (>2s) regression. Fall back to
+            # lexicographic compare if a timestamp can't be parsed.
+            regressed = (a < b - 2.0) if (a is not None and b is not None) else (ts < prev_ts)
+            if regressed:
+                errors.append(f"line {i}: timestamp goes backwards ({ts} < {prev_ts})")
         if ts is not None:
             prev_ts = ts
 
